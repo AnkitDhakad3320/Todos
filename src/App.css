@@ -467,3 +467,236 @@ body {
     grid-template-columns: 1fr;
   }
 }
+
+/* Idle Warning Popup Styles */
+.idle-warning-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 10000;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.idle-warning-popup {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 450px;
+  width: 90%;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  text-align: center;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from { 
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.warning-header {
+  margin-bottom: 20px;
+}
+
+.warning-icon {
+  font-size: 3rem;
+  margin-bottom: 10px;
+}
+
+.warning-header h3 {
+  color: #e74c3c;
+  margin: 0;
+  font-size: 1.5rem;
+}
+
+.warning-content {
+  margin-bottom: 25px;
+}
+
+.warning-content p {
+  margin: 10px 0;
+  color: #555;
+  line-height: 1.5;
+}
+
+.countdown-timer {
+  margin: 20px 0;
+}
+
+.countdown-timer .time {
+  font-size: 2.5rem;
+  font-weight: bold;
+  color: #e74c3c;
+  font-family: 'Courier New', monospace;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 8px;
+  background: #f0f0f0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 15px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #e74c3c, #f39c12);
+  border-radius: 4px;
+  transition: width 1s linear;
+}
+
+.warning-message {
+  font-size: 0.9rem;
+  color: #777;
+  font-style: italic;
+}
+
+.warning-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-bottom: 15px;
+}
+
+.stay-logged-in-btn,
+.logout-now-btn {
+  padding: 12px 24px;
+  font-size: 1rem;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-width: 140px;
+}
+
+.stay-logged-in-btn {
+  background: #27ae60;
+  color: white;
+}
+
+.stay-logged-in-btn:hover {
+  background: #219a52;
+  transform: translateY(-2px);
+}
+
+.logout-now-btn {
+  background: #95a5a6;
+  color: white;
+}
+
+.logout-now-btn:hover {
+  background: #7f8c8d;
+  transform: translateY(-2px);
+}
+
+.warning-footer {
+  border-top: 1px solid #eee;
+  padding-top: 15px;
+}
+
+.warning-footer small {
+  color: #999;
+}
+
+/* Session Timer Styles */
+.session-timer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #fff3cd;
+  border: 1px solid #ffeaa7;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  color: #856404;
+}
+
+.timer-icon {
+  font-size: 1.2rem;
+}
+
+.timer-text {
+  font-weight: 500;
+}
+
+/* Header Layout Updates */
+.header-main {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+
+.user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 4px;
+}
+
+.session-info {
+  font-size: 0.8rem;
+  color: #666;
+  background: #f8f9fa;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+
+/* Responsive Design for Warning Popup */
+@media (max-width: 768px) {
+  .idle-warning-popup {
+    margin: 20px;
+    padding: 20px;
+  }
+  
+  .warning-actions {
+    flex-direction: column;
+  }
+  
+  .stay-logged-in-btn,
+  .logout-now-btn {
+    min-width: auto;
+    width: 100%;
+  }
+  
+  .header-main {
+    flex-direction: column;
+    gap: 10px;
+    align-items: flex-start;
+  }
+  
+  .user-info {
+    align-items: flex-start;
+  }
+}
+
+/* Animation for timer warning */
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
+}
+
+.idle-warning-popup {
+  animation: slideUp 0.3s ease, pulse 2s ease-in-out infinite;
+}
+
+.countdown-timer .time {
+  animation: pulse 1s ease-in-out infinite;
+}

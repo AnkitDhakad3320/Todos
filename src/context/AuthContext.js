@@ -1,5 +1,7 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import { authAPI, validateToken } from '../services/todosApi';
+import useIdleTimer from '../hooks/useIdleTimer';
+import IdleWarningPopup from '../components/IdleWarningPopup';
 
 const AuthContext = createContext();
 
@@ -15,6 +17,42 @@ export const AuthProvider = ({ children }) => {
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [showIdleWarning, setShowIdleWarning] = useState(false);
+
+  // Configuration - easily adjustable
+  const IDLE_TIMEOUT = 1.5 * 60 * 1000; // 10 minutes
+  const WARNING_TIME = 60 * 1000; // 60 seconds warning
+
+  // Idle timer functionality
+  const {
+    timeLeft,
+    isWarning,
+    resetTimer,
+    handleStayLoggedIn: idleHandleStayLoggedIn,
+    handleImmediateLogout: idleHandleImmediateLogout
+  } = useIdleTimer({
+    timeout: IDLE_TIMEOUT,
+    warningTime: WARNING_TIME,
+    onTimeout: handleAutoLogout,
+    onWarning: () => setShowIdleWarning(true),
+    onStayLoggedIn: handleStayLoggedIn,
+    onActivity: handleUserActivity
+  });
+
+  function handleAutoLogout() {
+    console.log('Auto-logout due to inactivity');
+    performLogout();
+  }
+
+  function handleStayLoggedIn() {
+    setShowIdleWarning(false);
+    console.log('Session extended by user');
+  }
+
+  function handleUserActivity() {
+    // This is called when user is active during normal operation
+    // Not during warning period (that's handled in the hook)
+  }
 
   // Check for existing valid token on app start
   useEffect(() => {
@@ -30,8 +68,8 @@ export const AuthProvider = ({ children }) => {
         const userData = await validateToken();
         if (userData) {
           setUser(userData);
+          resetTimer(); // Start idle timer when user is authenticated
         } else {
-          // Token is invalid, clear storage
           await authAPI.logout();
         }
       }
@@ -56,6 +94,7 @@ export const AuthProvider = ({ children }) => {
       localStorage.setItem('userData', JSON.stringify(authData));
       
       setUser(authData);
+      resetTimer(); // Start idle timer after successful login
       return { success: true, data: authData };
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Login failed';
@@ -66,17 +105,22 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = async () => {
+  const performLogout = async () => {
     try {
       setLoading(true);
       await authAPI.logout();
       setUser(null);
       setError(null);
+      setShowIdleWarning(false);
     } catch (error) {
       console.error('Logout error:', error);
     } finally {
       setLoading(false);
     }
+  };
+
+  const logout = async () => {
+    await performLogout();
   };
 
   const signup = async (userData) => {
@@ -98,20 +142,46 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  // Enhanced stay logged in handler
+  const handleStayLoggedInEnhanced = () => {
+    idleHandleStayLoggedIn();
+    setShowIdleWarning(false);
+  };
+
+  // Enhanced immediate logout handler
+  const handleImmediateLogout = () => {
+    idleHandleImmediateLogout();
+    performLogout();
+  };
+
   const value = {
     user,
     loading,
     error,
+    showIdleWarning,
+    idleTimeLeft: timeLeft,
     login,
     logout,
     signup,
     checkAuth,
-    setError
+    setError,
+    handleStayLoggedIn: handleStayLoggedInEnhanced,
+    handleImmediateLogout
   };
 
   return (
     <AuthContext.Provider value={value}>
       {children}
+      
+      {/* Idle Warning Popup */}
+      {showIdleWarning && user && (
+        <IdleWarningPopup
+          timeLeft={timeLeft}
+          onStayLoggedIn={handleStayLoggedInEnhanced}
+          onLogout={handleImmediateLogout}
+          warningTime={WARNING_TIME / 1000}
+        />
+      )}
     </AuthContext.Provider>
   );
 };

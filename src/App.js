@@ -4,11 +4,12 @@ import TodoManager from './components/TodoManager';
 import LoginForm from './components/LoginForm';
 import SignupForm from './components/SignupForm';
 import ProtectedRoute from './components/ProtectedRoute';
+import SessionTimer from './components/SessionTimer'; // New component
 import './App.css';
 
 // Main app content component
 const AppContent = () => {
-  const { user, logout, loading } = useAuth();
+  const { user, logout, loading, idleTimeLeft } = useAuth();
   const [currentAuthView, setCurrentAuthView] = useState('login');
 
   const handleLogout = async () => {
@@ -28,13 +29,19 @@ const AppContent = () => {
   return (
     <div className="App">
       <header className="app-header">
-        <h1>📝 JWT Todo Manager</h1>
+        <div className="header-main">
+          <h1>📝 JWT Todo Manager</h1>
+          {user && <SessionTimer timeLeft={idleTimeLeft} />}
+        </div>
         <div className="nav">
           {user ? (
             <>
               <div className="user-info">
                 <span className="welcome">Welcome, <strong>{user.username}</strong>!</span>
                 <span className="user-id">ID: {user.id}</span>
+                <span className="session-info">
+                  Auto-logout: {Math.floor((10 * 60) / 60)}min idle
+                </span>
               </div>
               <button onClick={handleLogout} className="btn-secondary">
                 🚪 Logout
@@ -68,7 +75,7 @@ const AppContent = () => {
           <div className="token-info">
             <span>🔐 JWT Authentication Active</span>
             <span>•</span>
-            <span>Auto-refresh enabled</span>
+            <span>Auto-logout: {Math.floor((10 * 60) / 60)}min idle</span>
             <span>•</span>
             <span>User ID: {user.id}</span>
           </div>
